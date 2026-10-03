@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Калькулятор ACR/EULAR 2015 — Подагра</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
+    min-height: 100vh;
+    padding: 24px;
+    color: #1e293b;
+  }
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    overflow: hidden;
+  }
+  header {
+    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+    color: #fff;
+    padding: 28px 32px;
+  }
+  header h1 { font-size: 24px; margin-bottom: 6px; }
+  header p { font-size: 13px; opacity: 0.85; }
+
+  .step {
+    padding: 24px 32px;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  .step:last-child { border-bottom: none; }
+  .step h2 {
+    font-size: 16px;
+    color: #1e40af;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .step h2 .num {
+    background: #2563eb;
+    color: #fff;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .hint {
+    font-size: 12px;
+    color: #64748b;
+    margin-bottom: 14px;
+  }
+
+  /* Критерии включения / достаточный */
+  .criterion {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    font-size: 13px;
+  }
+  .criterion input[type="checkbox"] {
+    margin-top: 2px;
+    width: 18px; height: 18px;
+    accent-color: #2563eb;
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+  .criterion label { cursor: pointer; line-height: 1.5; }
+  .criterion .points {
+    margin-left: auto;
+    font-weight: 600;
+    color: #2563eb;
+    white-space: nowrap;
+    padding-left: 10px;
+  }
+
+  /* Группы с радио */
+  .group {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+  .group-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 10px;
+  }
+  .radio-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .radio-row input[type="radio"] {
+    width: 16px; height: 16px;
+    accent-color: #2563eb;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .radio-row .pts {
+    margin-left: auto;
+    font-weight: 600;
+    color: #2563eb;
+    white-space: nowrap;
+    padding-left: 10px;
+  }
+
+  /* Результат */
+  .result {
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    border-top: 3px solid #16a34a;
+    padding: 28px 32px;
+    text-align: center;
+  }
+  .result .score {
+    font-size: 48px;
+    font-weight: 700;
+    color: #166534;
+    line-height: 1;
+  }
+  .result .score-label {
+    font-size: 14px;
+    color: #166534;
+    margin-top: 4px;
+  }
+  .result .verdict {
+    margin-top: 18px;
+    font-size: 18px;
+    font-weight: 700;
+    padding: 14px 20px;
+    border-radius: 12px;
+    display: inline-block;
+  }
+  .verdict.positive {
+    background: #dc2626;
+    color: #fff;
+  }
+  .verdict.negative {
+    background: #e2e8f0;
+    color: #475569;
+  }
+  .result .max {
+    margin-top: 12px;
+    font-size: 12px;
+    color: #64748b;
+  }
+
+  .btn-reset {
+    display: block;
+    margin: 20px auto 0;
+    padding: 10px 24px;
+    background: #1e293b;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-reset:hover { background: #0f172a; }
+
+  @media (max-width: 600px) {
+    body { padding: 12px; }
+    header, .step, .result { padding-left: 18px; padding-right: 18px; }
+    .result .score { font-size: 36px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <header>
+    <h1>Калькулятор ACR/EULAR (2015)</h1>
+    <p>Классификационные критерии подагры — сумма баллов ≥ 8 подтверждает диагноз</p>
+  </header>
+
+  <!-- ШАГ 1 -->
+  <div class="step">
+    <h2><span class="num">1</span> Критерий включения</h2>
+    <p class="hint">Обязательное условие для применения шкалы</p>
+    <div class="criterion">
+      <input type="checkbox" id="inclusion" checked>
+      <label for="inclusion">≥1 эпизод боли, отёка или болезненности в периферическом суставе или бурсе</label>
+      <span class="points">обяз.</span>
+    </div>
+  </div>
+
+  <!-- ШАГ 2 -->
+  <div class="step">
+    <h2><span class="num">2</span> Достаточный критерий</h2>
+    <p class="hint">Если выполнен — диагноз подагры устанавливается без подсчёта баллов</p>
+    <div class="criterion">
+      <input type="checkbox" id="sufficient">
+      <label for="sufficient">Кристаллы моноурата натрия (МУН) обнаружены в синовиальной жидкости или тофусе (поляризационная микроскопия)</label>
+      <span class="points">золотой стандарт</span>
+    </div>
+  </div>
+
+  <!-- ШАГ 3 -->
+  <div class="step">
+    <h2><span class="num">3</span> Клинические критерии</h2>
+    <p class="hint">Выберите один вариант в каждой группе</p>
+
+    <!-- Локализация -->
+    <div class="group">
+      <div class="group-title">Локализация поражения</div>
+      <label class="radio-row">
+        <input type="radio" name="location" value="0" checked>
+        <span>Другая локализация / не указана</span>
+        <span class="pts">0</span>
+      </label>
+      <label class="radio-row">
+        <input type="radio" name="location" value="1">
+        <span>Вовлечение голеностопа или среднего отдела стопы</span>
+        <span class="pts">1</span>
+      </label>
+      <label class="radio-row">
+        <input type="radio" name="location" value="2">
+        <span>Вовлечение I плюснефалангового сустава</span>
+        <span class="pts">2</span>
+      </label>
+    </div>
+
+    <!-- Признаки воспаления -->
+    <div class="group">
+      <div class="group-title">Признаки воспаления (эритема, невозможность терпеть прикосновение, трудности при ходьбе)</div>
+      <label class="radio-row">
+        <input type="radio" name="inflam" value="0" checked>
+        <span>Нет или 1 признак</span>
+        <span class="pts">0</span>
+      </label>
+      <label class="radio-row">
+        <input type="radio" name="inflam" value="1">
+        <span>2 признака</span>
+        <span class="pts">1</span>
+      </label>
+      <label class="radio-row">
+        <input type="radio" name="inflam" value="2">
+        <span>3 признака</span>
+        <span class="pts">2</span>
+      </label>
+    </div>
+
+    <!-- Временные характеристики -->
+    <div class="group">
+      <div class="group-title">Временные характеристики эпизода</div>
+      <label class="radio-row">
+        <input type="radio" name="timing" value="0" checked>
+        <span>Не соответствуют типичным</span>
+        <span class="pts">0</span>
+      </label>
+      <label class="radio-row">
+        <input type="radio" name="timing" value="1">
+        <span>Один типичный эпизод: боль &lt;24 ч + разрешение ≤14 дней + полная регрессия между эпизодами</span>
+        <span class="pts">1</span>
+      </label>
+      <label class="radio-row">
+        <input type="radio" name="timing" value="2">
+        <span>≥2 типичных эпизода</span>
+        <span class="pts">2</span>
+      </label>
+    </div>
+
+    <!-- Тофусы -->
+    <div class="group">
+      <div class="group-title">Тофусы</div>
+      <label class="radio-row">
+        <input type="radio" name="tophus" value="0" checked>
+        <span>Отсутствуют</span>
+        <span class="pts">0</span>
+      </label>
+      <label class="radio-row">
+        <input type="radio" name="tophus" value="4">
+        <span>Подкожные узелки с отделяемым или мелообразные в типичных местах (суставы, уши, локти, пальцы, ахиллово сухожилие)</span>
+        <span class="pts">4</span>
+      </label>
+    </div>
+  </div>
+
+  <!-- ШАГ 4 -->
+  <div class="step">
+    <h2><span class="num">4</span> Лабораторные критерии</h2>
+    <p class="hint">Выберите один вариант в каждой группе</p>
+
+    <!-- Мочевая кислота -->
+    <div class="group">
+      <div class="group-title">Сывороточная мочевая кислота (во время приступа или в течение 4 недель после)</div>
+      <label class="radio-row">
+        <input type="radio" name="ua" value="-4">
+        <span>&lt; 4 мг/дл (&lt; 240 мкмоль/л)</span>
+        <span class="pts">−4</span>
+      </label>
+      <label class="radio-row">
+        <input type="radio" name="ua" value="0" checked>
+        <span>4 – &lt; 6 мг/дл (240 – &lt; 360 мкмоль/л)</span>
+        <span class="pts">0</span>
+      </label>
+      <label class="radio-row">
+        <input type="radio" name="ua" value="2">
+        <span>6 – &lt; 8 мг/дл (360 – &lt; 480 мкмоль/л)</span>
+        <span class="pts">2</span>
+      </label>
+      <label class="radio-row">
+        <input type="radio" name="ua" value="3">
+        <span>8 – &lt; 10 мг/дл (480 – &lt; 600 мкмоль/л)</span>
+        <span class="pts">3</span>
+      </label>
+      <label class="radio-row">
+        <input type="radio" name="ua" value="4">
+        <span>≥ 10 мг/дл (≥ 600 мкмоль/л)</span>
+        <span class="pts">4</span>
+      </label>
+    </div>
+
+    <!-- Синовиальная жидкость -->
+    <div class="group">
+      <div class="group-title">Анализ синовиальной жидкости (поляризационная микроскопия)</div>
+      <label class="radio-row">
+        <input type="radio" name="synov" value="0" checked>
+        <span>Не проводился</span>
+        <span class="pts">0</span>
+      </label>
+      <label class="radio-row">
+        <input type="radio" name="synov" value="-2">
+        <span>МУН не обнаружены</span>
+        <span class="pts">−2</span>
+      </label>
+    </div>
+  </div>
+
+  <!-- ШАГ 5 -->
+  <div class="step">
+    <h2><span class="num">5</span> Визуализация</h2>
+    <p class="hint">Выберите один вариант в каждой группе</p>
+
+    <!-- Отложение уратов -->
+    <div class="group">
+      <div class="group-title">Отложение уратов (УЗИ с double contour sign или двухэнергетическая КТ)</div>
+      <label class="radio-row">
+        <input type="radio" name="imaging_urate" value="0" checked>
+        <span>Не проводилась</span>
+        <span class="pts">0</span>
+      </label>
+      <label class="radio-row">
+        <input type="radio" name="imaging_urate" value="4">
+        <span>Обнаружено отложение уратов</span>
+        <span class="pts">4</span>
+      </label>
+    </div>
+
+    <!-- Повреждение суставов -->
+    <div class="group">
+      <div class="group-title">Повреждение суставов (рентгенография: ≥1 эрозия)</div>
+      <label class="radio-row">
+        <input type="radio" name="imaging_damage" value="0" checked>
+        <span>Не проводилась или эрозий нет</span>
+        <span class="pts">0</span>
+      </label>
+      <label class="radio-row">
+        <input type="radio" name="imaging_damage" value="4">
+        <span>Обнаружена ≥1 эрозия (кисти/стопы)</span>
+        <span class="pts">4</span>
+      </label>
+    </div>
+  </div>
+
+  <!-- РЕЗУЛЬТАТ -->
+  <div class="result">
+    <div class="score" id="totalScore">0</div>
+    <div class="score-label">баллов</div>
+    <div class="verdict negative" id="verdict">Подагра не классифицируется</div>
+    <div class="max">Максимум — 23 балла. Порог ≥ 8. Чувствительность 92%, специфичность 89%.</div>
+    <button class="btn-reset" onclick="resetForm()">Сбросить</button>
+  </div>
+
+</div>
+
+<script>
+  const form = document.querySelector('.container');
+
+  function calculate() {
+    // Если достаточный критерий — сразу положительный результат
+    const sufficient = document.getElementById('sufficient').checked;
+    if (sufficient) {
+      document.getElementById('totalScore').textContent = '—';
+      const verdict = document.getElementById('verdict');
+      verdict.textContent = 'Подагра (достаточный критерий)';
+      verdict.className = 'verdict positive';
+      return;
+    }
+
+    let total = 0;
+
+    // Радио-группы
+    const radios = form.querySelectorAll('input[type="radio"]:checked');
+    radios.forEach(r => {
+      const val = parseInt(r.value, 10);
+      if (!isNaN(val)) total += val;
+    });
+
+    document.getElementById('totalScore').textContent = total;
+
+    const verdict = document.getElementById('verdict');
+    if (total >= 8) {
+      verdict.textContent = 'Подагра классифицируется (≥ 8 баллов)';
+      verdict.className = 'verdict positive';
+    } else {
+      verdict.textContent = 'Подагра не классифицируется (< 8 баллов)';
+      verdict.className = 'verdict negative';
+    }
+  }
+
+  function resetForm() {
+    form.querySelectorAll('input[type="radio"]').forEach(r => {
+      if (r.value === '0') r.checked = true;
+    });
+    document.getElementById('sufficient').checked = false;
+    document.getElementById('inclusion').checked = true;
+    calculate();
+  }
+
+  // Навешиваем обработчики
+  form.addEventListener('change', calculate);
+  calculate();
+</script>
+
+</body>
+</html>
